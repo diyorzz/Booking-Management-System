@@ -1,0 +1,80 @@
+﻿@page "/next-ticket"
+@using BookingManagement.Interfaces
+@using BookingManagement.Models
+@using BookingManagement.Models.Enums
+@using BookingManagement.Services
+@inject ITicketService TicketService
+@inject NavigationManager Navigation
+
+@rendermode InteractiveServer
+
+<h3>Process Next Ticket</h3>
+
+<div class="d-flex justify-content-center mb-4">
+    <button class="btn btn-secondary w-50" @onclick="ProcessNextTicket">
+        <i class="fas fa-tasks"></i> Process Next Ticket
+    </button>
+</div>
+
+<h5 class="text-center text-secondary mb-3">Tickets</h5>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered text-center">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Customer ID</th>
+                <th>Priority</th>
+                <th>Creation Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in tickets)
+            {
+                <tr>
+                    <td>@ticket.Id</td>
+                    <td>@ticket.CustomerId</td>
+                    <td>@ticket.Priority</td>
+                    <td>@ticket.CreationTime.ToString("g")</td>
+                    <td>@ticket.Status</td>
+                    <td>
+                        @if (ticket.Status == TicketStatus.Processing)
+                        {
+                            <button class="btn btn-success btn-sm" @onclick="() => CompleteTicket(ticket.Id)">
+                                <i class="fas fa-check-circle"></i> Complete
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">N/A</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<Ticket> tickets = new List<Ticket>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tickets = await TicketService.GetTicketsAsync();
+    }
+
+    private async Task ProcessNextTicket()
+    {
+        var nextTicket = await TicketService.GetNextTicketAsync();
+
+        tickets = await TicketService.GetTicketsAsync(); 
+    }
+
+    private async Task CompleteTicket(int ticketId)
+    {
+        await TicketService.CompleteTicketAsync(ticketId);
+        tickets = await TicketService.GetTicketsAsync();
+    }
+}

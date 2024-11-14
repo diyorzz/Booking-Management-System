@@ -1,10 +1,20 @@
 using BookingManagement.Components;
+using BookingManagement.Database;
+using BookingManagement.Interfaces;
+using BookingManagement.Services;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContext<BookingManagementDbContext>(
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("BookingConnection")));
+
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 
