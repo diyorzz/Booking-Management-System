@@ -12,7 +12,7 @@ public class TicketService : ITicketService
 
     public TicketService(BookingManagementDbContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context = context;
     }
 
     public async Task<List<Ticket>> GetTicketsAsync()
@@ -49,7 +49,7 @@ public class TicketService : ITicketService
         };
 
         _context.Tickets.Add(ticket);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     public async Task CompleteTicketAsync(int ticketId)
@@ -68,5 +68,16 @@ public class TicketService : ITicketService
         return await _context.Tickets
             .Where(t => t.Status == TicketStatus.Completed)
             .ToListAsync();
+    }
+
+    public async Task DeleteTicketAsync(int ticketId)
+    {
+        var ticket = await _context.Tickets.FindAsync(ticketId);
+
+        if (ticket is not null)
+        {
+            _context.Tickets.Remove(ticket);
+            await _context.SaveChangesAsync();
+        }
     }
 }

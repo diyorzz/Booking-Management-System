@@ -10,4 +10,5 @@ public interface ITicketService
     Task CompleteTicketAsync(int ticketId);
     Task<List<Ticket>> GetTicketsAsync();
     Task<List<Ticket>> GetCompletedTicketsAsync();
+    Task DeleteTicketAsync(int ticketId);
 }
